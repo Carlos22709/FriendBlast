@@ -1,6 +1,7 @@
 export {
   countFailedSyncActions,
   enqueueSyncAction,
+  hasPendingSyncActions,
   listSyncActions,
   retryFailedSyncActions,
   type SyncActionType,
@@ -10,6 +11,7 @@ export { sendMessage } from '@/data/repositories/messageRepository';
 export { addComment, setPostLiked } from '@/data/repositories/postRepository';
 export { setFollowState } from '@/data/repositories/profileRepository';
 export { registerBackgroundSyncAsync } from '@/data/sync/backgroundSync';
+export { submitOrQueueAction } from '@/data/sync/submitOrQueue';
 export {
   processSyncQueue,
   type CommentPayload,

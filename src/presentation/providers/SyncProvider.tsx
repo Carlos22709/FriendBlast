@@ -15,6 +15,7 @@ import {
   addComment,
   countFailedSyncActions,
   enqueueSyncAction,
+  hasPendingSyncActions,
   listSyncActions,
   processSyncQueue,
   registerBackgroundSyncAsync,
@@ -22,6 +23,7 @@ import {
   sendMessage,
   setFollowState,
   setPostLiked,
+  submitOrQueueAction,
   type CommentPayload,
   type FollowPayload,
   type LikePayload,
@@ -48,15 +50,9 @@ type SyncContextValue = {
 
 const SyncContext = createContext<SyncContextValue | null>(null);
 
-function isNetworkError(error: unknown) {
-  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
-  return (
-    message.includes('network request failed') ||
-    message.includes('failed to fetch') ||
-    message.includes('fetch failed') ||
-    message.includes('timeout') ||
-    message.includes('offline')
-  );
+async function isNetworkAvailable() {
+  const network = await NetInfo.fetch();
+  return Boolean(network.isConnected) && network.isInternetReachable !== false;
 }
 
 function queuedComments(actions: SyncQueueItem[]): Comment[] {
@@ -123,8 +119,7 @@ export function SyncProvider({ children }: PropsWithChildren) {
     let shouldRefresh = false;
 
     try {
-      const network = await NetInfo.fetch();
-      if (!network.isConnected || network.isInternetReachable === false) {
+      if (!(await isNetworkAvailable())) {
         return;
       }
 
@@ -183,34 +178,22 @@ export function SyncProvider({ children }: PropsWithChildren) {
   }, [actions, processQueue, session]);
 
   const submitOrQueue = useCallback(
-    async (
+    (
       actionType: SyncActionType,
       userId: string,
       payload: unknown,
       onlineAction: () => Promise<void>,
       dedupeKey?: string,
-    ) => {
-      const network = await NetInfo.fetch();
-
-      if (!network.isConnected || network.isInternetReachable === false) {
-        await enqueueSyncAction(database, userId, actionType, payload, { dedupeKey });
-        await refreshQueue();
-        return true;
-      }
-
-      try {
-        await onlineAction();
-        return false;
-      } catch (error: unknown) {
-        if (!isNetworkError(error)) {
-          throw error;
-        }
-
-        await enqueueSyncAction(database, userId, actionType, payload, { dedupeKey });
-        await refreshQueue();
-        return true;
-      }
-    },
+    ) =>
+      submitOrQueueAction({
+        isOnline: isNetworkAvailable,
+        hasPendingActions: () => hasPendingSyncActions(database, userId),
+        enqueue: async () => {
+          await enqueueSyncAction(database, userId, actionType, payload, { dedupeKey });
+          await refreshQueue();
+        },
+        send: onlineAction,
+      }),
     [database, refreshQueue],
   );
 

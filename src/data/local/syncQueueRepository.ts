@@ -95,6 +95,14 @@ export async function listSyncActions(database: SQLiteDatabase, userId: string) 
   }));
 }
 
+export async function hasPendingSyncActions(database: SQLiteDatabase, userId: string) {
+  const row = await database.getFirstAsync<{ id: number }>(
+    'SELECT id FROM sync_queue WHERE user_id = ? LIMIT 1',
+    userId,
+  );
+  return row !== null;
+}
+
 export async function removeSyncAction(database: SQLiteDatabase, id: number) {
   await database.runAsync('DELETE FROM sync_queue WHERE id = ?', id);
 }
