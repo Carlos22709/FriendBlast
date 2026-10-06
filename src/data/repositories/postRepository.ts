@@ -29,9 +29,11 @@ type CreatePostInput = {
   mimeType?: string | null;
 };
 
-type LikeRow = {
+type PostStatsRow = {
   post_id: string;
-  user_id: string;
+  like_count: number;
+  comment_count: number;
+  liked_by_me: boolean;
 };
 
 type CommentRow = {
@@ -98,55 +100,32 @@ async function fetchPosts({
     return { items: [], nextCursor: null };
   }
 
-  const postIds = rows.map((row) => row.id);
-  let likes: LikeRow[] = [];
-  let commentPostIds: { post_id: string }[] = [];
-  let currentUserId: string | undefined;
-
-  if (postIds.length > 0) {
-    const [likesResult, commentsResult, sessionResult] = await Promise.all([
-      client.from('post_likes').select('post_id, user_id').in('post_id', postIds),
-      client.from('comments').select('post_id').in('post_id', postIds),
-      client.auth.getSession(),
-    ]);
-
-    if (likesResult.error) {
-      throw likesResult.error;
-    }
-
-    if (commentsResult.error) {
-      throw commentsResult.error;
-    }
-
-    likes = (likesResult.data ?? []) as LikeRow[];
-    commentPostIds = commentsResult.data ?? [];
-    currentUserId = sessionResult.data.session?.user.id;
-  }
-
-  const likeCounts = new Map<string, number>();
-  const commentCounts = new Map<string, number>();
-
-  for (const like of likes) {
-    likeCounts.set(like.post_id, (likeCounts.get(like.post_id) ?? 0) + 1);
-  }
-
-  for (const comment of commentPostIds) {
-    commentCounts.set(comment.post_id, (commentCounts.get(comment.post_id) ?? 0) + 1);
-  }
-
-  const { data: signedImages, error: signedImagesError } = await client.storage
-    .from(POST_IMAGES_BUCKET)
-    .createSignedUrls(
+  // Los contadores se calculan en la base de datos (get_post_stats) en lugar de
+  // descargar cada like y comentario, que además PostgREST corta en 1000 filas.
+  const [statsResult, signedImagesResult] = await Promise.all([
+    client.rpc('get_post_stats', { p_post_ids: rows.map((row) => row.id) }),
+    client.storage.from(POST_IMAGES_BUCKET).createSignedUrls(
       rows.map((row) => row.image_path),
       60 * 60,
-    );
+    ),
+  ]);
 
-  if (signedImagesError) {
-    throw signedImagesError;
+  if (statsResult.error) {
+    throw statsResult.error;
   }
+
+  if (signedImagesResult.error) {
+    throw signedImagesResult.error;
+  }
+
+  const statsByPost = new Map(
+    ((statsResult.data ?? []) as PostStatsRow[]).map((stats) => [stats.post_id, stats]),
+  );
+  const signedImages = signedImagesResult.data;
 
   const items = rows.map((row, index) => {
     const profile = getProfile(row.profile);
+    const stats = statsByPost.get(row.id);
 
     return {
       id: row.id,
@@ -156,11 +135,9 @@ async function fetchPosts({
       imageUrl: signedImages[index]?.signedUrl ?? '',
       caption: row.caption,
       createdAt: row.created_at,
-      likeCount: likeCounts.get(row.id) ?? 0,
-      commentCount: commentCounts.get(row.id) ?? 0,
-      likedByMe: likes.some(
-        (like) => like.post_id === row.id && like.user_id === currentUserId,
-      ),
+      likeCount: Number(stats?.like_count ?? 0),
+      commentCount: Number(stats?.comment_count ?? 0),
+      likedByMe: stats?.liked_by_me ?? false,
     };
   });
 
