@@ -56,7 +56,15 @@ export function ChatScreen() {
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const localTyping = useRef(false);
+  // La cola cambia en cada sincronización. Se lee desde una referencia para que
+  // loadMessages no cambie de identidad: si cambiara, la suscripción Realtime se
+  // recrearía y la recarga descartaría los mensajes anteriores ya cargados.
+  const pendingMessagesRef = useRef(pendingMessages);
   const lastMessageId = messages[messages.length - 1]?.id;
+
+  useEffect(() => {
+    pendingMessagesRef.current = pendingMessages;
+  }, [pendingMessages]);
 
   const loadMessages = useCallback(async (preserveHistory = false) => {
     if (!conversationId) {
@@ -65,16 +73,18 @@ export function ChatScreen() {
 
     await markConversationDelivered(conversationId);
     const page = await listMessages(conversationId);
-    const localMessages = pendingMessages.filter(
+    const localMessages = pendingMessagesRef.current.filter(
       (message) => message.conversationId === conversationId,
     );
+    // El orden importa: la copia del servidor va al final para reemplazar la
+    // copia local "Pendiente" de un mensaje que la cola ya sincronizó.
     setMessages((current) =>
       mergeMessages(
         preserveHistory
           ? current.filter((message) => message.conversationId === conversationId)
           : [],
-        page.items,
         localMessages,
+        page.items,
       ),
     );
     if (!preserveHistory) {
@@ -82,7 +92,7 @@ export function ChatScreen() {
     }
     setIsLoading(false);
     await markConversationRead(conversationId);
-  }, [conversationId, pendingMessages]);
+  }, [conversationId]);
 
   useFocusEffect(
     useCallback(() => {

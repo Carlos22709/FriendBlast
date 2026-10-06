@@ -1,6 +1,6 @@
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { randomUUID } from 'expo-crypto';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -78,6 +78,14 @@ export function CommentsScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const threadedComments = useMemo(() => buildCommentThread(comments), [comments]);
+  // La cola cambia en cada sincronización. Se lee desde una referencia para que
+  // loadComments no cambie de identidad: si cambiara, se volverían a pedir los
+  // comentarios y se recrearía la suscripción Realtime.
+  const pendingCommentsRef = useRef(pendingComments);
+
+  useEffect(() => {
+    pendingCommentsRef.current = pendingComments;
+  }, [pendingComments]);
 
   const loadComments = useCallback(async () => {
     if (!postId) {
@@ -87,7 +95,9 @@ export function CommentsScreen() {
     try {
       const nextComments = await listComments(postId);
       setError(null);
-      const localComments = pendingComments.filter((comment) => comment.postId === postId);
+      const localComments = pendingCommentsRef.current.filter(
+        (comment) => comment.postId === postId,
+      );
       const remoteIds = new Set(nextComments.map((comment) => comment.id));
       setComments([
         ...nextComments,
@@ -98,7 +108,7 @@ export function CommentsScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [pendingComments, postId]);
+  }, [postId]);
 
   useFocusEffect(
     useCallback(() => {
