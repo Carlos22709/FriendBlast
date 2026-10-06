@@ -8,6 +8,7 @@ Red social móvil de fotografías construida con React Native, Expo y TypeScript
 2. Copia .env.example como .env.
 3. Añade la URL y la clave pública de Supabase cuando el backend esté disponible.
 4. Ejecuta npm start.
+5. Ejecuta npm test para correr las pruebas automáticas.
 
 La aplicación puede iniciarse sin credenciales de Supabase durante el Módulo 0.
 
@@ -41,6 +42,9 @@ La migración `202610040006_stories.sql` añade historias que dejan de mostrarse
 
 La migración `202610060002_threaded_comments_and_inbox.sql` añade hilos de
 comentarios, refuerza sus políticas y optimiza la bandeja de mensajes.
+
+La migración `202610060003_post_stats.sql` calcula en la base de datos los
+contadores de likes y comentarios del feed.
 
 La guía de pruebas y preguntas para la sustentación está en
 `docs/DEFENSA_TECNICA.md`.
