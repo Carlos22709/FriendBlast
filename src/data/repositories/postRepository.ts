@@ -246,7 +246,10 @@ export async function setPostLiked(postId: string, userId: string, shouldLike: b
   const result = shouldLike
     ? await client
         .from('post_likes')
-        .upsert({ post_id: postId, user_id: userId }, { onConflict: 'post_id,user_id' })
+        .upsert(
+          { post_id: postId, user_id: userId },
+          { onConflict: 'post_id,user_id', ignoreDuplicates: true },
+        )
     : await client.from('post_likes').delete().eq('post_id', postId).eq('user_id', userId);
 
   if (result.error) {
@@ -296,7 +299,7 @@ export async function addComment(
           user_id: userId,
           body: body.trim(),
         },
-        { onConflict: 'id' },
+        { onConflict: 'id', ignoreDuplicates: true },
       )
     : await client.from('comments').insert({
         post_id: postId,
