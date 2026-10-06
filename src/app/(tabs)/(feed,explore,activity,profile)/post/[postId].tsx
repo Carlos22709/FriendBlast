@@ -5,7 +5,7 @@ import { PostDetailScreen } from '@/presentation/screens/PostDetailScreen';
 export default function PostDetailRoute() {
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, headerTitle: 'Publicación' }} />
+      <Stack.Screen options={{ headerTitle: 'Publicación' }} />
       <PostDetailScreen />
     </>
   );

@@ -8,7 +8,7 @@ export default function ConnectionsRoute() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, headerTitle: title }} />
+      <Stack.Screen options={{ headerTitle: title }} />
       <ConnectionsScreen />
     </>
   );

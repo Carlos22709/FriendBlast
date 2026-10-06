@@ -118,7 +118,7 @@ export function ExploreScreen() {
     setBusyMessageId(profile.id);
     try {
       const conversationId = await getOrCreateConversation(profile.id);
-      router.push({ pathname: '/explore/messages/[conversationId]', params: { conversationId } });
+      router.push({ pathname: '/messages/[conversationId]', params: { conversationId } });
     } catch (messageError: unknown) {
       Alert.alert('No se pudo abrir el chat', messageError instanceof Error ? messageError.message : 'Intenta nuevamente.');
     } finally {
@@ -128,7 +128,7 @@ export function ExploreScreen() {
 
   return (
     <SafeAreaView edges={['left', 'right']} style={styles.safeArea}>
-      <Pressable onPress={() => router.push('/explore/messages/index')} style={styles.inboxButton}>
+      <Pressable onPress={() => router.push('/messages')} style={styles.inboxButton}>
         <Text style={styles.inboxText}>Abrir mensajes</Text>
       </Pressable>
       <TextInput

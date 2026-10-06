@@ -86,7 +86,7 @@ export function PostDetailScreen() {
         <View style={styles.actions}>
           <Pressable
             onPress={() =>
-              router.push({ pathname: '/feed/[postId]', params: { postId: post.id } })
+              router.push({ pathname: '/comments/[postId]', params: { postId: post.id } })
             }
             style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
           >

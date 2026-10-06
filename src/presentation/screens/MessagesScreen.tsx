@@ -64,7 +64,7 @@ export function MessagesScreen() {
           <Pressable
             onPress={() =>
               router.push({
-                pathname: '/explore/messages/[conversationId]',
+                pathname: '/messages/[conversationId]',
                 params: { conversationId: item.id },
               })
             }

@@ -5,7 +5,7 @@ import { ProfileDetailsScreen } from '@/presentation/screens/ProfileDetailsScree
 export default function ProfileDetailsRoute() {
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, headerTitle: 'Perfil' }} />
+      <Stack.Screen options={{ headerTitle: 'Perfil' }} />
       <ProfileDetailsScreen />
     </>
   );

@@ -164,7 +164,7 @@ export function FeedScreen() {
 
   const handleComments = useCallback(
     (postId: string) => {
-      router.push({ pathname: '/feed/[postId]', params: { postId } });
+      router.push({ pathname: '/comments/[postId]', params: { postId } });
     },
     [router],
   );
@@ -229,7 +229,7 @@ export function FeedScreen() {
             ) : null}
             <Pressable
               accessibilityRole="button"
-              onPress={() => router.push('/feed/create')}
+              onPress={() => router.push('/create')}
               style={({ pressed }) => [styles.createButton, pressed && styles.pressed]}
             >
               <Text style={styles.createButtonText}>＋ Nueva publicación</Text>

@@ -21,7 +21,7 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="feed"
+        name="(feed)"
         options={{
           title: 'Inicio',
           tabBarIcon: ({ color, focused, size }) => (
@@ -36,7 +36,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="(explore)"
         options={{
           title: 'Explorar',
           tabBarIcon: ({ color, focused, size }) => (
@@ -51,7 +51,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="activity"
+        name="(activity)"
         options={{
           title: 'Actividad',
           tabBarIcon: ({ color, focused, size }) => (
@@ -66,7 +66,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="(profile)"
         options={{
           title: 'Perfil',
           tabBarIcon: ({ color, focused, size }) => (

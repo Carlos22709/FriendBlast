@@ -40,9 +40,6 @@ function RootNavigator() {
       </Stack.Protected>
       <Stack.Protected guard={Boolean(session)}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="post/[postId]" />
-        <Stack.Screen name="profile/[userId]" />
-        <Stack.Screen name="connections/[userId]/[kind]" />
       </Stack.Protected>
     </Stack>
   );

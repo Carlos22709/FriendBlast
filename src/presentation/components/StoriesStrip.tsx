@@ -55,7 +55,7 @@ export function StoriesStrip() {
       >
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.push('/feed/stories/create')}
+          onPress={() => router.push('/stories/create')}
           style={({ pressed }) => [styles.item, pressed && styles.pressed]}
         >
           <View style={[styles.circle, styles.createCircle]}>
@@ -75,7 +75,7 @@ export function StoriesStrip() {
               key={story.id}
               onPress={() =>
                 router.push({
-                  pathname: '/feed/stories/[storyId]',
+                  pathname: '/stories/[storyId]',
                   params: { storyId: story.id },
                 })
               }
