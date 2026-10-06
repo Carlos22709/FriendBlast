@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "FriendBlast",
+    "slug": "friendblast",
+    "scheme": "friendblast",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.carlos22709.friendblast",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.carlos22709.friendblast",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "FriendBlast necesita acceso a tus fotos para crear publicaciones.",
+          "microphonePermission": false
+        }
+      ],
+      "expo-background-task",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "420afddc-7fcb-46bd-873c-e883ce8fb477"
+      }
+    },
+    "owner": "carlos22709"
+  }
+}
